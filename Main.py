@@ -1,4 +1,4 @@
-railway_trading_bot/main.py
+J-cpu-sudo/CryptoTradeBot/main.py
 
 import ccxt import time import os import json from datetime import datetime
 

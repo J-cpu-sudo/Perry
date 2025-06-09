@@ -1,3 +1,4 @@
+print("🚀 Bot is starting...")
 import os
 
 print("Working Directory:", os.getcwd())

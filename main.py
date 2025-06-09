@@ -1,5 +1,8 @@
-print("🚀 Bot is starting...")
 import os
+
+print("🚀 Bot is starting...")
+print("Current directory:", os.getcwd())
+print("Files:", os.listdir())
 
 print("Working Directory:", os.getcwd())
 print("Files in current directory:", os.listdir())

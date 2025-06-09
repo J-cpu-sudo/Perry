@@ -1,1 +1,1 @@
-# intentionally left blank
+worker: python main.py

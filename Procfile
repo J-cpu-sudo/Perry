@@ -1,1 +1,1 @@
-worker: python main.py
+# Disabled – using Dockerfile

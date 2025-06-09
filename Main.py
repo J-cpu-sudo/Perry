@@ -1,3 +1,10 @@
+import os
+
+print("Working Directory:", os.getcwd())
+print("Files in current directory:", os.listdir())
+
+# The rest of your code follows...
+
 import ccxt
 import time
 import os

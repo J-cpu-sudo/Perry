@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import os
 import ccxt
 import time
@@ -99,7 +102,7 @@ def run():
             price = okx.fetch_ticker(SYMBOL)['last']
             size = get_trade_size(balance, price)
             order = okx.create_market_order(SYMBOL, signal, size)
-            entry = order['average']
+            entry = order.get('average', price)  # fallback to current price if average not available
             stop = trailing_logic(entry, entry, signal, entry)
             print(f"[+] Entered {signal.upper()} @ {entry}", flush=True)
 
@@ -111,8 +114,9 @@ def run():
                 stop = trailing_logic(entry, current, signal, stop)
                 if (signal == 'buy' and current <= stop) or (signal == 'sell' and current >= stop):
                     exit_order = okx.create_market_order(SYMBOL, exit_side, size)
-                    print(f"[-] Exited {exit_side.upper()} @ {exit_order['average']}", flush=True)
-                    pnl = (current - entry) if signal == 'buy' else (entry - current)
+                    exit_price = exit_order.get('average', current)
+                    print(f"[-] Exited {exit_side.upper()} @ {exit_price}", flush=True)
+                    pnl = (exit_price - entry) if signal == 'buy' else (entry - exit_price)
                     if pnl > 0:
                         state['wins'] += 1
                         state['losses'] = 0
@@ -140,4 +144,4 @@ def run():
 
 if __name__ == "__main__":
     run()
-                    
+            

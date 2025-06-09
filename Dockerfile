@@ -1,20 +1,18 @@
-FROM python:3.10-slim
+# Use an official Python runtime as a parent image
+FROM python:3.11-slim
 
-# 1. Set working directory
+# Set working directory inside the container
 WORKDIR /app
 
-# 2. Copy requirements and install dependencies
+# Copy requirements file and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 3. Copy your Python script into the container
+# Copy your main Python script into the container
 COPY main.py .
 
-# 4. (Optional) Copy your .env file if used by the app
-COPY .env .env
+# Copy your .env file if your app needs it (optional, be careful with secrets)
+# COPY .env .
 
-# 5. List the directory for debugging (shows up in Railway logs)
-RUN echo "Listing /app contents:" && ls -la /app
-
-# 6. Run the bot
+# Command to run your app
 CMD ["python", "main.py"]

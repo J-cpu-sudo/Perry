@@ -2,10 +2,11 @@ import os
 import ccxt
 import time
 import json
+import sys
 
-print("🚀 Bot is starting...")
-print("Current directory:", os.getcwd())
-print("Files:", os.listdir())
+print("🚀 Bot is starting...", flush=True)
+print("Current directory:", os.getcwd(), flush=True)
+print("Files:", os.listdir(), flush=True)
 
 # === Load ENV ===
 API_KEY = os.getenv("OKX_API_KEY")
@@ -13,7 +14,7 @@ API_SECRET = os.getenv("OKX_API_SECRET")
 PASSPHRASE = os.getenv("OKX_API_PASSPHRASE")
 
 if not all([API_KEY, API_SECRET, PASSPHRASE]):
-    print("[WARN] One or more API credentials are missing! Please set OKX_API_KEY, OKX_API_SECRET, OKX_API_PASSPHRASE.")
+    print("[WARN] One or more API credentials are missing! Please set OKX_API_KEY, OKX_API_SECRET, OKX_API_PASSPHRASE.", flush=True)
 
 # === Config ===
 SYMBOL = 'BTC/USDT'
@@ -71,13 +72,13 @@ def trailing_logic(entry, current, signal, stop):
 
 # === Main Bot ===
 def run():
-    print("✅ Bot run() started")  # Added startup confirmation
+    print("✅ Bot run() started", flush=True)
     state = load_state()
     while True:
         try:
             balance = get_balance()
             if balance < MIN_BALANCE:
-                print("[!] Low balance. Sleeping.")
+                print("[!] Low balance. Sleeping.", flush=True)
                 time.sleep(300)
                 continue
 
@@ -91,7 +92,7 @@ def run():
                 signal = 'sell'
 
             if not signal:
-                print("[!] No trade signal.")
+                print("[!] No trade signal.", flush=True)
                 time.sleep(30)
                 continue
 
@@ -100,7 +101,7 @@ def run():
             order = okx.create_market_order(SYMBOL, signal, size)
             entry = order['average']
             stop = trailing_logic(entry, entry, signal, entry)
-            print(f"[+] Entered {signal.upper()} @ {entry}")
+            print(f"[+] Entered {signal.upper()} @ {entry}", flush=True)
 
             exit_side = 'sell' if signal == 'buy' else 'buy'
             start = time.time()
@@ -110,7 +111,7 @@ def run():
                 stop = trailing_logic(entry, current, signal, stop)
                 if (signal == 'buy' and current <= stop) or (signal == 'sell' and current >= stop):
                     exit_order = okx.create_market_order(SYMBOL, exit_side, size)
-                    print(f"[-] Exited {exit_side.upper()} @ {exit_order['average']}")
+                    print(f"[-] Exited {exit_side.upper()} @ {exit_order['average']}", flush=True)
                     pnl = (current - entry) if signal == 'buy' else (entry - current)
                     if pnl > 0:
                         state['wins'] += 1
@@ -123,20 +124,20 @@ def run():
                 time.sleep(10)
 
             if state['losses'] >= 2:
-                print("[!] 2 Losses. Studying market before next trade.")
+                print("[!] 2 Losses. Studying market before next trade.", flush=True)
                 time.sleep(300)
                 state['losses'] = 0
                 save_state(state)
 
-            time.sleep(30)  # Fixed this line's broken parentheses
+            time.sleep(30)
 
         except KeyboardInterrupt:
-            print("\n[INFO] Bot interrupted and shutting down gracefully.")
+            print("\n[INFO] Bot interrupted and shutting down gracefully.", flush=True)
             break
         except Exception as e:
-            print(f"[ERROR] {e}")
+            print(f"[ERROR] {e}", flush=True)
             time.sleep(60)
 
 if __name__ == "__main__":
     run()
-    
+                    

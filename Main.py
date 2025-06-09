@@ -87,5 +87,6 @@ closes = fetch_closes()
         print(f"[ERROR] {e}")
         time.sleep(60)
 
-if name == 'main': run()
+        if __name__ == "__main__":
+    run()
 

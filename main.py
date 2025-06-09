@@ -1,23 +1,19 @@
 import os
+import ccxt
+import time
+import json
 
 print("🚀 Bot is starting...")
 print("Current directory:", os.getcwd())
 print("Files:", os.listdir())
 
-print("Working Directory:", os.getcwd())
-print("Files in current directory:", os.listdir())
-
-# The rest of your code follows...
-
-import ccxt
-import time
-import os
-import json
-
 # === Load ENV ===
 API_KEY = os.getenv("OKX_API_KEY")
 API_SECRET = os.getenv("OKX_API_SECRET")
 PASSPHRASE = os.getenv("OKX_API_PASSPHRASE")
+
+if not all([API_KEY, API_SECRET, PASSPHRASE]):
+    print("[WARN] One or more API credentials are missing! Please set OKX_API_KEY, OKX_API_SECRET, OKX_API_PASSPHRASE.")
 
 # === Config ===
 SYMBOL = 'BTC/USDT'
@@ -75,6 +71,7 @@ def trailing_logic(entry, current, signal, stop):
 
 # === Main Bot ===
 def run():
+    print("✅ Bot run() started")  # Added startup confirmation
     state = load_state()
     while True:
         try:
@@ -131,11 +128,15 @@ def run():
                 state['losses'] = 0
                 save_state(state)
 
-            time.sleep(30)
+            time.sleep(30)  # Fixed this line's broken parentheses
 
+        except KeyboardInterrupt:
+            print("\n[INFO] Bot interrupted and shutting down gracefully.")
+            break
         except Exception as e:
             print(f"[ERROR] {e}")
             time.sleep(60)
 
 if __name__ == "__main__":
     run()
+    

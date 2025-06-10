@@ -5,7 +5,6 @@ import os
 import ccxt
 import time
 import json
-import sys
 
 print("🚀 Bot is starting...", flush=True)
 print("Current directory:", os.getcwd(), flush=True)
@@ -17,7 +16,7 @@ API_SECRET = os.getenv("OKX_API_SECRET")
 PASSPHRASE = os.getenv("OKX_API_PASSPHRASE")
 
 if not all([API_KEY, API_SECRET, PASSPHRASE]):
-    print("[WARN] One or more API credentials are missing! Please set OKX_API_KEY, OKX_API_SECRET, OKX_API_PASSPHRASE.", flush=True)
+    print("[WARN] One or more API credentials are missing! Please set OKX_API_KEY, OKX_API_SECRET, and OKX_API_PASSPHRASE.", flush=True)
 
 # === Config ===
 SYMBOL = 'BTC/USDT'
@@ -102,7 +101,7 @@ def run():
             price = okx.fetch_ticker(SYMBOL)['last']
             size = get_trade_size(balance, price)
             order = okx.create_market_order(SYMBOL, signal, size)
-            entry = order.get('average', price)  # fallback to current price if average not available
+            entry = order.get('average') or price
             stop = trailing_logic(entry, entry, signal, entry)
             print(f"[+] Entered {signal.upper()} @ {entry}", flush=True)
 
@@ -114,7 +113,7 @@ def run():
                 stop = trailing_logic(entry, current, signal, stop)
                 if (signal == 'buy' and current <= stop) or (signal == 'sell' and current >= stop):
                     exit_order = okx.create_market_order(SYMBOL, exit_side, size)
-                    exit_price = exit_order.get('average', current)
+                    exit_price = exit_order.get('average') or current
                     print(f"[-] Exited {exit_side.upper()} @ {exit_price}", flush=True)
                     pnl = (exit_price - entry) if signal == 'buy' else (entry - exit_price)
                     if pnl > 0:
@@ -144,4 +143,4 @@ def run():
 
 if __name__ == "__main__":
     run()
-            
+                

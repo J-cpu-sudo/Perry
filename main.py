@@ -1,20 +1,23 @@
 from dotenv import load_dotenv
-load_dotenv()
-
 import os
 import ccxt
 import time
 import json
 import sys
 
-print("🚀 Bot is starting...", flush=True)
-print("Current directory:", os.getcwd(), flush=True)
-print("Files:", os.listdir(), flush=True)
-
 # === Load ENV ===
+load_dotenv(dotenv_path=".env")
+
 API_KEY = os.getenv("OKX_API_KEY")
 API_SECRET = os.getenv("OKX_API_SECRET")
 PASSPHRASE = os.getenv("OKX_API_PASSPHRASE")
+
+print("🚀 Bot is starting...", flush=True)
+print("Current directory:", os.getcwd(), flush=True)
+print("Files:", os.listdir(), flush=True)
+print("API_KEY:", API_KEY)
+print("API_SECRET:", "✔️" if API_SECRET else "❌")
+print("PASSPHRASE:", "✔️" if PASSPHRASE else "❌")
 
 if not all([API_KEY, API_SECRET, PASSPHRASE]):
     print("[FATAL] Missing one or more API credentials (OKX_API_KEY, OKX_API_SECRET, OKX_API_PASSPHRASE).", flush=True)
@@ -146,4 +149,4 @@ def run():
 
 if __name__ == "__main__":
     run()
-    
+                    

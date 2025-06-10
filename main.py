@@ -16,9 +16,9 @@ API_KEY = os.getenv("OKX_API_KEY")
 API_SECRET = os.getenv("OKX_API_SECRET")
 PASSPHRASE = os.getenv("OKX_API_PASSPHRASE")
 
-print("API_KEY:", API_KEY, flush=True)
-print("API_SECRET:", "✔️" if API_SECRET else "❌", flush=True)
-print("PASSPHRASE:", "✔️" if PASSPHRASE else "❌", flush=True)
+print("API_KEY:", API_KEY[:6] + "..." if API_KEY else "❌ MISSING")
+print("API_SECRET:", "✔️" if API_SECRET else "❌")
+print("PASSPHRASE:", "✔️" if PASSPHRASE else "❌")
 
 if not all([API_KEY, API_SECRET, PASSPHRASE]):
     print("[FATAL] Missing one or more API credentials.", flush=True)
@@ -86,7 +86,7 @@ def run():
         try:
             balance = get_balance()
             if balance < MIN_BALANCE:
-                print(f"[!] Low balance (${balance:.2f}). Sleeping 5 min.", flush=True)
+                print("[!] Low balance. Sleeping.", flush=True)
                 time.sleep(300)
                 continue
 
@@ -100,7 +100,7 @@ def run():
                 signal = 'sell'
 
             if not signal:
-                print(f"[!] RSI: {rsi:.2f} — No trade signal.", flush=True)
+                print("[!] No trade signal.", flush=True)
                 time.sleep(30)
                 continue
 
@@ -108,12 +108,8 @@ def run():
             size = get_trade_size(balance, price)
             order = okx.create_market_order(SYMBOL, signal, size)
             entry = order.get('average') or price
-
-            # Type-check debug
-            print(f"DEBUG — entry: {entry} ({type(entry)}), signal: {signal} ({type(signal)})", flush=True)
-
             stop = trailing_logic(entry, entry, signal, entry)
-            print(f"[+] Entered {signal.upper()} @ {entry:.2f} (size: {size})", flush=True)
+            print(f"[+] Entered {signal.upper()} @ {entry}", flush=True)
 
             exit_side = 'sell' if signal == 'buy' else 'buy'
             start = time.time()
@@ -121,13 +117,11 @@ def run():
             while time.time() - start < MAX_HOLD:
                 current = okx.fetch_ticker(SYMBOL)['last']
                 stop = trailing_logic(entry, current, signal, stop)
-
                 if (signal == 'buy' and current <= stop) or (signal == 'sell' and current >= stop):
                     exit_order = okx.create_market_order(SYMBOL, exit_side, size)
                     exit_price = exit_order.get('average') or current
-                    print(f"[-] Exited {exit_side.upper()} @ {exit_price:.2f}", flush=True)
+                    print(f"[-] Exited {exit_side.upper()} @ {exit_price}", flush=True)
                     pnl = (exit_price - entry) if signal == 'buy' else (entry - exit_price)
-                    print(f"[PNL] {'Profit' if pnl > 0 else 'Loss'}: {pnl:.2f}", flush=True)
                     if pnl > 0:
                         state['wins'] += 1
                         state['losses'] = 0
@@ -136,11 +130,10 @@ def run():
                         state['wins'] = 0
                     save_state(state)
                     break
-
                 time.sleep(10)
 
             if state['losses'] >= 2:
-                print("[!] 2 consecutive losses. Pausing for 5 min.", flush=True)
+                print("[!] 2 Losses. Studying market before next trade.", flush=True)
                 time.sleep(300)
                 state['losses'] = 0
                 save_state(state)
@@ -148,7 +141,7 @@ def run():
             time.sleep(30)
 
         except KeyboardInterrupt:
-            print("\n[INFO] Bot interrupted. Shutting down.", flush=True)
+            print("\n[INFO] Bot interrupted and shutting down gracefully.", flush=True)
             break
 
         except Exception as e:
@@ -157,4 +150,4 @@ def run():
 
 if __name__ == "__main__":
     run()
-        
+            

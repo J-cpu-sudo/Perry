@@ -5,6 +5,7 @@ import os
 import ccxt
 import time
 import json
+import sys
 
 print("🚀 Bot is starting...", flush=True)
 print("Current directory:", os.getcwd(), flush=True)
@@ -16,7 +17,8 @@ API_SECRET = os.getenv("OKX_API_SECRET")
 PASSPHRASE = os.getenv("OKX_API_PASSPHRASE")
 
 if not all([API_KEY, API_SECRET, PASSPHRASE]):
-    print("[WARN] One or more API credentials are missing! Please set OKX_API_KEY, OKX_API_SECRET, and OKX_API_PASSPHRASE.", flush=True)
+    print("[FATAL] Missing one or more API credentials (OKX_API_KEY, OKX_API_SECRET, OKX_API_PASSPHRASE).", flush=True)
+    sys.exit(1)
 
 # === Config ===
 SYMBOL = 'BTC/USDT'
@@ -137,10 +139,11 @@ def run():
         except KeyboardInterrupt:
             print("\n[INFO] Bot interrupted and shutting down gracefully.", flush=True)
             break
+
         except Exception as e:
             print(f"[ERROR] {e}", flush=True)
             time.sleep(60)
 
 if __name__ == "__main__":
     run()
-                
+    
